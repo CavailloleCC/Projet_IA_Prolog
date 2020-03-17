@@ -65,4 +65,4 @@ voisinBas(P,LP):-personnage(P,X,Y,_,_),Y=<4,Y1 is Y+1,findall(personnage(P1,X,Y1
 estSuspect(LS,P):-setof(P1, peutTuer(P1,P), LS).
 
 %P1 tue P2 si il existe au moins 1 autres suspects que P1 (pour pas se faire démasquer)
-tuer(P1,P2):-estSuspect(LS,P2),member(P1,LS),length(LS,N),N>=2.
+tuer(P1,P2):-estSuspect(LS,P2),member(P1,LS),length(LS,N),N>=2,retract(personnage(P2,_,_,_,_)).
