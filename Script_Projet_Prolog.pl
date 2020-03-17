@@ -2,6 +2,7 @@
 %création de personnages : personnage(X,Y,role = {killer K, cible C, rien R},appartenance = {joueur J, ordinateur O, nul N})
 
 :-dynamic personnage/5.
+:-dynamic suspects/1.
 
 personnage(p1,1,1,r,n).
 personnage(p2,1,2,r,n).
@@ -24,7 +25,6 @@ caseSniper(2,3).
 caseSniper(1,2).
 caseSniper(4,1).
 
-
 role(r).
 role(k).
 role(c).
@@ -32,6 +32,8 @@ role(c).
 appartenance(j).
 appartenance(c).
 appartenance(n).
+
+suspects([]).
 
 
 case(X,Y):- integer(X),integer(Y),X >= 1, X =< 4, Y >= 1, Y =< 4.
@@ -64,5 +66,9 @@ voisinBas(P,LP):-personnage(P,X,Y,_,_),Y=<4,Y1 is Y+1,findall(personnage(P1,X,Y1
 %Récupération de la liste des suspects qui peuvent tuer P. LS = liste suspects
 estSuspect(LS,P):-setof(P1, peutTuer(P1,P), LS).
 
-%P1 tue P2 si il existe au moins 1 autres suspects que P1 (pour pas se faire démasquer)
+%P1 tue P2 si il existe au moins 1 autre suspect que P1 (pour pas se faire démasquer)
 tuer(P1,P2):-estSuspect(LS,P2),member(P1,LS),length(LS,N),N>=2,retract(personnage(P2,_,_,_,_)).
+
+%Mise à jour de la liste des suspects : au premier meurtre tous les suspects dans la liste puis suspects en commun avec les meurtres précédents
+modifierSuspects(P):-estSuspect(LS,P),suspects([]),retract(suspects([])),assert(suspects(LS)).
+modifierSuspects(P):-estSuspect(LS,P),suspects(L),length(L,N),N>=1,intersection(L,LS,LF),retract(suspects(L)),assert(suspects(LF)).
