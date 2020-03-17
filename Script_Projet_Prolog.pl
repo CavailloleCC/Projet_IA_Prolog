@@ -47,7 +47,7 @@ voisinDroit(P,LP):-personnage(P,X,Y,_,_),X=<4,X1 is X+1,findall(personnage(P1,X1
 voisinHaut(P,LP):-personnage(P,X,Y,_,_),Y>=2,Y1 is Y-1,findall(personnage(P1,X,Y1,R1,A1),personnage(P1,X,Y1,R1,A1),LP).
 voisinBas(P,LP):-personnage(P,X,Y,_,_),Y=<4,Y1 is Y+1,findall(personnage(P1,X,Y1,R1,A1),personnage(P1,X,Y1,R1,A1),LP).
 
-%Personnages susceptibles de tuer P : P1 peut tuer P2 ? ou P1 peut tuer ...
+%Personnages susceptibles de tuer P2 : P1 peut tuer P2
     %tuer par couteau
     peutTuer(P1,P2):-P1 \= P2,personnage(P1,X,Y,_,_),personnage(P2,X,Y,_,_).
 
@@ -62,7 +62,7 @@ voisinBas(P,LP):-personnage(P,X,Y,_,_),Y=<4,Y1 is Y+1,findall(personnage(P1,X,Y1
     peutTuer(P1,P2):-personnage(P1,X,Y,_,_),voisinBas(P1,LP),member(personnage(P2,_,_,_,_),LP),etatCase(case(X,Y),L),length(L,1).
 
 %Récupération de la liste des suspects qui peuvent tuer P. LS = liste suspects
-estSuspect(LS,P):-peutTuer(P1,P),setof(personnage(P1,X,Y,R,A), personnage(P,X,Y,R,A), LS).
+estSuspect(LS,P):-setof(P1, peutTuer(P1,P), LS).
 
-%P1 tue P si il existe au moins 2 autres suspects que P1 (pour pas se faire démasquer)
-%tuer(P1,P):- estSuspect(LP,P),length(LP,N),N>=2.
+%P1 tue P2 si il existe au moins 1 autres suspects que P1 (pour pas se faire démasquer)
+tuer(P1,P2):-estSuspect(LS,P2),member(P1,LS),length(LS,N),N>=2.
