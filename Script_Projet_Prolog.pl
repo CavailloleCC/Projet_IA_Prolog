@@ -72,3 +72,6 @@ tuer(P1,P2):-estSuspect(LS,P2),member(P1,LS),length(LS,N),N>=2,retract(personnag
 %Mise à jour de la liste des suspects : au premier meurtre tous les suspects dans la liste puis suspects en commun avec les meurtres précédents
 modifierSuspects(P):-estSuspect(LS,P),suspects([]),retract(suspects([])),assert(suspects(LS)).
 modifierSuspects(P):-estSuspect(LS,P),suspects(L),length(L,N),N>=1,intersection(L,LS,LF),retract(suspects(L)),assert(suspects(LF)).
+
+%Tueur adverse trouvé
+tueurAdverse(P):-suspects(L),length(L,1),member(P,L).
