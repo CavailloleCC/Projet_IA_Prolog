@@ -49,23 +49,20 @@ voisinBas(P,LP):-personnage(P,X,Y,_,_),Y=<4,Y1 is Y+1,findall(personnage(P1,X,Y1
 
 %Personnages susceptibles de tuer P : P1 peut tuer P2 ? ou P1 peut tuer ...
     %tuer par couteau
-    peutTuer(P1,P2):-personnage(P1,X,Y,_,_),personnage(P2,X,Y,_,_). 
-    
+    peutTuer(P1,P2):-P1 \= P2,personnage(P1,X,Y,_,_),personnage(P2,X,Y,_,_).
+
     %tuer par sniper
-    peutTuer(P1,P2):-personnage(P1,X,Y,_,_),caseSniper(X,Y), personnage(P2,X,_,_,_),etatCase(case(X,Y),L),length(L,1).
-    peutTuer(P1,P2):-personnage(P1,X,Y,_,_),caseSniper(X,Y), personnage(P2,_,Y,_,_),etatCase(case(X,Y),L),length(L,1).
-    
+    peutTuer(P1,P2):-P1 \= P2,personnage(P1,X,Y,_,_),caseSniper(X,Y), personnage(P2,X,_,_,_),etatCase(case(X,Y),L),length(L,1).
+    peutTuer(P1,P2):-P1 \= P2,personnage(P1,X,Y,_,_),caseSniper(X,Y), personnage(P2,_,Y,_,_),etatCase(case(X,Y),L),length(L,1).
+
     %tuer par pistolet
     peutTuer(P1,P2):-personnage(P1,X,Y,_,_),voisinGauche(P1,LP),member(personnage(P2,_,_,_,_),LP),etatCase(case(X,Y),L),length(L,1).
     peutTuer(P1,P2):-personnage(P1,X,Y,_,_),voisinDroit(P1,LP),member(personnage(P2,_,_,_,_),LP),etatCase(case(X,Y),L),length(L,1).
-    peutTuer(P1,P2):-personnage(P1,X,Y,_,_),voisinHaut(P1,LP),member(personnage(P2,_,_,_,_),LP),etatCase(case(X,Y),L),length(L,1). 
+    peutTuer(P1,P2):-personnage(P1,X,Y,_,_),voisinHaut(P1,LP),member(personnage(P2,_,_,_,_),LP),etatCase(case(X,Y),L),length(L,1).
     peutTuer(P1,P2):-personnage(P1,X,Y,_,_),voisinBas(P1,LP),member(personnage(P2,_,_,_,_),LP),etatCase(case(X,Y),L),length(L,1).
 
 %Récupération de la liste des suspects qui peuvent tuer P. LS = liste suspects
-estSuspect(LS,P):-peutTuer(P1,P),findall(personnage(P1,X,Y,R,A), personnage(P,X,Y,R,A), LS).
+estSuspect(LS,P):-peutTuer(P1,P),setof(personnage(P1,X,Y,R,A), personnage(P,X,Y,R,A), LS).
 
 %P1 tue P si il existe au moins 2 autres suspects que P1 (pour pas se faire démasquer)
 %tuer(P1,P):- estSuspect(LP,P),length(LP,N),N>=2.
-
-%attention : quand on fait estSuspect OU peutTuer parfois ça revient plusieurs fois : car exemple, p13 peut tuer p5 avec un sniper MAIS AUSSI avec le pistolet (or quand avec le prédicat tuer, on veut compter les nombres de suspects, il ne faudrait pas que ce soit les memes)
-%Pour mieux comprendre mon commentaire précédent, tester sur prolog ceci : "estSuspect(LP,p5)" il y a plusieurs fois le 13 donc il serait peut-être compter 2 fois dans les suspects!!!!
