@@ -35,11 +35,21 @@ appartenance(n).
 
 suspects([]).
 
+%Liste des personnages appartenant au joueur
+personnagesJoueur(LP):-findall(personnage(P,X,Y,R,j),personnage(P,X,Y,R,j),LP).
+
+%Liste des personnages appartenant au joueur virtuel (ordinateur)
+personnagesOrdinateur(LP):-findall(personnage(P,X,Y,R,o),personnage(P,X,Y,R,o),LP).
 
 case(X,Y):- integer(X),integer(Y),X >= 1, X =< 4, Y >= 1, Y =< 4.
 etatCase(case(X,Y),LP):- findall(personnage(P,X,Y,R,A), personnage(P,X,Y,R,A), LP). %Récupération de la liste des personnages dans la case(X,Y)
 
+%%Déplacer un personnage
 deplacer(P,X,Y):- case(X,Y), retract(personnage(P,_,_,R,A)), assert(personnage(P,X,Y,R,A)).
+%Déplacer un personnage appartenant à un joueur
+deplacerJoueur(P,X,Y):-personnage(P,_,_,_,j),deplacer(P,X,Y).
+%Déplacer un personnage appartenant à un joueur virtuel (ordinateur)
+deplacerOrdinateur(P,X,Y):-personnage(P,_,_,_,o),deplacer(P,X,Y).
 
 %ligne test : deplacer(personnage(P,_,_,R,A),X,Y):- case(X,Y), retract(personnage(P,_,_,R,A)), assert(personnage(P,X,Y,R,A)).
 
@@ -63,15 +73,28 @@ voisinBas(P,LP):-personnage(P,X,Y,_,_),Y=<4,Y1 is Y+1,findall(personnage(P1,X,Y1
     peutTuer(P1,P2):-personnage(P1,X,Y,_,_),voisinHaut(P1,LP),member(personnage(P2,_,_,_,_),LP),etatCase(case(X,Y),L),length(L,1).
     peutTuer(P1,P2):-personnage(P1,X,Y,_,_),voisinBas(P1,LP),member(personnage(P2,_,_,_,_),LP),etatCase(case(X,Y),L),length(L,1).
 
-%Récupération de la liste des suspects qui peuvent tuer P. LS = liste suspects
-estSuspect(LS,P):-setof(P1, peutTuer(P1,P), LS).
+%Stratégie ordinateur : seuls les personnages appartenant pas au joueur virtuel peuvent être suspects
+estSuspect(P1,P2):-A\=o,personnage(P1,_,_,_,A),peutTuer(P1,P2).
 
-%P1 tue P2 si il existe au moins 1 autre suspect que P1 (pour pas se faire démasquer)
-tuer(P1,P2):-estSuspect(LS,P2),member(P1,LS),length(LS,N),N>=2,retract(personnage(P2,_,_,_,_)).
+%Récupération de la liste des suspects qui peuvent tuer P. LS = liste suspects
+listSuspect(LS,P):-setof(P1, estSuspect(P1,P), LS).
+
+%%Tuer un personnage
+%Stratégie joueur : tuer par un joueur
+tuer(P1,P2):-personnage(P1,_,_,k,j),peutTuer(P1,P2),retract(personnage(P2,_,_,_,_)).
+
+%Stratégie ordinateur : P1 tue P2 si il existe au moins 1 autre suspect que P1 (pour pas se faire démasquer)
+tuerOrdi(P1,P2):-personnage(P1,_,_,k,o),personnage(P2,_,_,_,A),A\=o,peutTuer(P1,P2),estSuspect(LS,P2),length(LS,N),N>=1,retract(personnage(P2,_,_,_,A)).
 
 %Mise à jour de la liste des suspects : au premier meurtre tous les suspects dans la liste puis suspects en commun avec les meurtres précédents
-modifierSuspects(P):-estSuspect(LS,P),suspects([]),retract(suspects([])),assert(suspects(LS)).
-modifierSuspects(P):-estSuspect(LS,P),suspects(L),length(L,N),N>=1,intersection(L,LS,LF),retract(suspects(L)),assert(suspects(LF)).
+modifierSuspects(P):-listSuspect(LS,P),suspects([]),retract(suspects([])),assert(suspects(LS)).
+modifierSuspects(P):-listSuspect(LS,P),suspects(L),length(L,N),N>=1,intersection(L,LS,LF),retract(suspects(L)),assert(suspects(LF)).
 
 %Tueur adverse trouvé
 tueurAdverse(P):-suspects(L),length(L,1),member(P,L).
+
+%Affichages
+
+clear:-write('\e[2J]').
+
+afficheCase(case(X,Y)):-etatCase(case(X,Y),LP), write(case(X,Y)), write(' : '), write(LP).
