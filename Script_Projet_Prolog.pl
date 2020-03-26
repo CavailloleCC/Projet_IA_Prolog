@@ -60,8 +60,9 @@ personnagesJoueur(LP):-findall(personnage(P,X,Y,R,j),personnage(P,X,Y,R,j),LP).
 %Liste des personnages appartenant au joueur virtuel (ordinateur)
 personnagesOrdinateur(LP):-findall(personnage(P,X,Y,R,o),personnage(P,X,Y,R,o),LP).
 
+%Liste des personnages dans la case(X,Y)
 case(X,Y):- integer(X),integer(Y),X >= 1, X =< 4, Y >= 1, Y =< 4.
-etatCase(case(X,Y),LP):- findall(personnage(P,X,Y,R,A), personnage(P,X,Y,R,A), LP). %Récupération de la liste des personnages dans la case(X,Y)
+etatCase(case(X,Y),LP):- findall(personnage(P,X,Y,R,A), personnage(P,X,Y,R,A), LP). 
 
 %%Déplacer un personnage
 deplacer(P,X,Y):- case(X,Y), retract(personnage(P,_,_,R,A)), assert(personnage(P,X,Y,R,A)).
