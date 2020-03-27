@@ -48,11 +48,6 @@ tour(joueur).
 
 %Liste de tous les personnages du jeu
 listPersonnages(LP):-findall(personnage(P,X,Y,R,O),personnage(P,X,Y,R,O),LP).
-%Personnage aléatoire
-personnageAleatoire(P):-listPersonnages(LP),random_member(P,LP).
-
-%Position aléatoire
-positionAleatoire(X,Y):-random_member(X,[1,2,3,4]),random_member(Y,[1,2,3,4]).
 
 %Liste des personnages appartenant au joueur
 personnagesJoueur(LP):-findall(personnage(P,X,Y,R,j),personnage(P,X,Y,R,j),LP).
@@ -62,14 +57,14 @@ personnagesOrdinateur(LP):-findall(personnage(P,X,Y,R,o),personnage(P,X,Y,R,o),L
 
 %Liste des personnages dans la case(X,Y)
 case(X,Y):- integer(X),integer(Y),X >= 1, X =< 4, Y >= 1, Y =< 4.
-etatCase(case(X,Y),LP):- findall(personnage(P,X,Y,R,A), personnage(P,X,Y,R,A), LP). 
+etatCase(case(X,Y),LP):- findall(personnage(P,X,Y,R,A), personnage(P,X,Y,R,A), LP).
 
 %%Déplacer un personnage
 deplacer(P,X,Y):- case(X,Y), retract(personnage(P,_,_,R,A)), assert(personnage(P,X,Y,R,A)).
 
 %Déplacer un personnage au hasard
-deplacerOrdi(P):-listPersonnages(LP),random_member(personnage(P,_,_,_,_),LP),random_member(X,[1,2,3,4]),,random_member(Y,[1,2,3,4]),deplacer(P,X,Y).
-deplacerOrdi(P):-listPersonnages(LP),random_member(personnage(P,X,_,_,_),LP),L is [1,2,3,4], delete(L1,X,L2),random_member(X1,L1),,random_member(Y,[1,2,3,4]),deplacer(P,X1,Y).
+deplacerOrdi(P):-listPersonnages(LP),random_member(personnage(P,_,_,_,_),LP),random_member(X,[1,2,3,4]),random_member(Y,[1,2,3,4]),deplacer(P,X,Y).
+deplacerOrdi(P):-listPersonnages(LP),random_member(personnage(P,X,_,_,_),LP),L is [1,2,3,4], delete(L1,X,L2),random_member(X1,L1),random_member(Y,[1,2,3,4]),deplacer(P,X1,Y).
 
 
 %Personnages voisins : P a pour voisin...
@@ -106,7 +101,7 @@ tuer(P1,P2):-personnage(P1,_,_,R,j),personnage(P2,_,_,_,_),R\=k,write('Veuillez 
 
 
 %Stratégie ordinateur : P1 tue P2 si il existe au moins 1 autre suspect que P1 (pour pas se faire démasquer)
-tuerOrdi(P1,P2):-personnage(P1,_,_,k,o),personnage(P2,_,_,_,A),A\=o,peutTuer(P1,P2),estSuspect(LS,P2),length(LS,N),N>=1,retract(personnage(P2,_,_,_,A)),scoreOrdi(S),S1 is S+3, retract(scoreOrdi(S)), assert(scoreOrdi(S1)),retract(gagnant(null)),assert(gagnant(ordi)).
+tuerOrdi(P1,P2):-personnage(P1,_,_,k,o),personnage(P2,_,_,_,A),A\=o,peutTuer(P1,P2),tueurAdverse(P2),listSuspect(LS,P2),length(LS,N),N>=1,retract(personnage(P2,_,_,_,A)),scoreOrdi(S),S1 is S+3, retract(scoreOrdi(S)), assert(scoreOrdi(S1)),retract(gagnant(null)),assert(gagnant(ordi)).
 
 %Mise à jour de la liste des suspects : au premier meurtre tous les suspects dans la liste puis suspects en commun avec les meurtres précédents
 modifierSuspects(P):-listSuspect(LS,P),suspects([]),retract(suspects([])),assert(suspects(LS)).
@@ -126,7 +121,6 @@ verifierFin:-gagnant(ordi),scoreJoueur(SJ),scoreOrdi(SO),SJ=SO,write('La partie 
 %Changement de tour
 changerTour:-tour(joueur),retract(tour(joueur)),assert(tour(ordi)).
 changerTour:-tour(ordi),retract(tour(ordi)),assert(tour(joueur)).
-
 
 
 %Prédicat test
