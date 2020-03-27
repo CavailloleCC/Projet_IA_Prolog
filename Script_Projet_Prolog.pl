@@ -8,22 +8,22 @@
 :-dynamic gagnant/1.
 :-dynamic tour/1.
 
-personnage(p1,1,1,r,n).
-personnage(p2,1,2,r,n).
-personnage(p3,1,3,k,o).
-personnage(p4,2,4,c,j).
-personnage(p5,3,1,r,n).
-personnage(p6,2,3,c,j).
-personnage(p7,2,1,r,n).
-personnage(p8,4,3,r,n).
-personnage(p9,3,2,c,j).
-personnage(p10,2,1,k,j).
-personnage(p11,1,3,c,o).
-personnage(p12,3,4,r,n).
-personnage(p13,4,1,r,n).
-personnage(p14,3,1,c,o).
-personnage(p15,1,1,c,o).
-personnage(p16,2,1,r,n).
+personnage(a,1,1,r,n).
+personnage(b,1,2,r,n).
+personnage(c,1,3,k,o).
+personnage(d,2,4,c,j).
+personnage(e,3,1,r,n).
+personnage(f,2,3,c,j).
+personnage(g,2,1,r,n).
+personnage(h,4,3,r,n).
+personnage(i,3,2,c,j).
+personnage(j,2,1,k,j).
+personnage(k,1,3,c,o).
+personnage(l,3,4,r,n).
+personnage(m,4,1,r,n).
+personnage(n,3,1,c,o).
+personnage(o,1,1,c,o).
+personnage(p,2,1,r,n).
 
 caseSniper(2,3).
 caseSniper(1,2).
@@ -64,7 +64,7 @@ deplacer(P,X,Y):- case(X,Y), retract(personnage(P,_,_,R,A)), assert(personnage(P
 
 %Déplacer un personnage au hasard
 deplacerOrdi(P):-listPersonnages(LP),random_member(personnage(P,_,_,_,_),LP),random_member(X,[1,2,3,4]),random_member(Y,[1,2,3,4]),deplacer(P,X,Y).
-deplacerOrdi(P):-listPersonnages(LP),random_member(personnage(P,X,_,_,_),LP),L is [1,2,3,4], delete(L1,X,L2),random_member(X1,L1),random_member(Y,[1,2,3,4]),deplacer(P,X1,Y).
+deplacerOrdi(P):-listPersonnages(LP),random_member(personnage(P,X,_,_,_),LP), delete([1,2,3,4],X,L),random_member(X1,L),random_member(Y,[1,2,3,4]),deplacer(P,X1,Y).
 
 
 %Personnages voisins : P a pour voisin...
@@ -130,4 +130,29 @@ modifierScore(scoreOrdi(X)):-retract(scoreOrdi(X)),Y is X+3,assert(scoreOrdi(Y))
 
 clear:-write('\e[2J]').
 
-afficheCase(case(X,Y)):-etatCase(case(X,Y),LP), write(case(X,Y)), write(' : '), write(LP).
+afficheCase(case(X,Y)):-etatCase(case(X,Y),LP), length(LP,N),N=0, write('                ').
+afficheCase(case(X,Y)):-etatCase(case(X,Y),LP), length(LP,N),N=1, nth0(0,LP,personnage(P0,_,_,_,_)), write(P0),write('               ').
+afficheCase(case(X,Y)):-etatCase(case(X,Y),LP), length(LP,N),N=2, nth0(0,LP,personnage(P0,_,_,_,_)),nth0(1,LP,personnage(P1,_,_,_,_)),write(P0),write(P1),write('              ').
+afficheCase(case(X,Y)):-etatCase(case(X,Y),LP), length(LP,N),N=3, nth0(0,LP,personnage(P0,_,_,_,_)),nth0(1,LP,personnage(P1,_,_,_,_)),nth0(2,LP,personnage(P2,_,_,_,_)), write(P0),write(P1),write(P2),write('             ').
+afficheCase(case(X,Y)):-etatCase(case(X,Y),LP), length(LP,N),N=4, nth0(0,LP,personnage(P0,_,_,_,_)),nth0(1,LP,personnage(P1,_,_,_,_)),nth0(2,LP,personnage(P2,_,_,_,_)),nth0(3,LP,personnage(P3,_,_,_,_)), write(P0),write(P1),write(P2),write(P3),write('            ').
+afficheCase(case(X,Y)):-etatCase(case(X,Y),LP), length(LP,N),N=5, nth0(0,LP,personnage(P0,_,_,_,_)),nth0(1,LP,personnage(P1,_,_,_,_)),nth0(2,LP,personnage(P2,_,_,_,_)),nth0(3,LP,personnage(P3,_,_,_,_)),nth0(4,LP,personnage(P4,_,_,_,_)),write(P0),write(P1),write(P2),write(P3),write(P4),write('           ').
+afficheCase(case(X,Y)):-etatCase(case(X,Y),LP), length(LP,N),N=6, nth0(0,LP,personnage(P0,_,_,_,_)),nth0(1,LP,personnage(P1,_,_,_,_)),nth0(2,LP,personnage(P2,_,_,_,_)),nth0(3,LP,personnage(P3,_,_,_,_)),nth0(4,LP,personnage(P4,_,_,_,_)),nth0(5,LP,personnage(P5,_,_,_,_)),write(P0),write(P1),write(P2),write(P3),write(P4),write(P5),write('          ').
+afficheCase(case(X,Y)):-etatCase(case(X,Y),LP), length(LP,N),N=7, nth0(0,LP,personnage(P0,_,_,_,_)),nth0(1,LP,personnage(P1,_,_,_,_)),nth0(2,LP,personnage(P2,_,_,_,_)),nth0(3,LP,personnage(P3,_,_,_,_)),nth0(4,LP,personnage(P4,_,_,_,_)),nth0(5,LP,personnage(P5,_,_,_,_)),nth0(6,LP,personnage(P6,_,_,_,_)),write(P0),write(P1),write(P2),write(P3),write(P4),write(P5),write(P6),write('         ').
+afficheCase(case(X,Y)):-etatCase(case(X,Y),LP), length(LP,N),N=8, nth0(0,LP,personnage(P0,_,_,_,_)),nth0(1,LP,personnage(P1,_,_,_,_)),nth0(2,LP,personnage(P2,_,_,_,_)),nth0(3,LP,personnage(P3,_,_,_,_)),nth0(4,LP,personnage(P4,_,_,_,_)),nth0(5,LP,personnage(P5,_,_,_,_)),nth0(6,LP,personnage(P6,_,_,_,_)),nth0(7,LP,personnage(P7,_,_,_,_)), write(P0),write(P1),write(P2),write(P3),write(P4),write(P5),write(P6),write(P7),write('        ').
+afficheCase(case(X,Y)):-etatCase(case(X,Y),LP), length(LP,N),N=9, nth0(0,LP,personnage(P0,_,_,_,_)),nth0(1,LP,personnage(P1,_,_,_,_)),nth0(2,LP,personnage(P2,_,_,_,_)),nth0(3,LP,personnage(P3,_,_,_,_)),nth0(4,LP,personnage(P4,_,_,_,_)),nth0(5,LP,personnage(P5,_,_,_,_)),nth0(6,LP,personnage(P6,_,_,_,_)),nth0(7,LP,personnage(P7,_,_,_,_)),nth0(8,LP,personnage(P8,_,_,_,_)),write(P0),write(P1),write(P2),write(P3),write(P4),write(P5),write(P6),write(P7),write(P8),write('       ').
+afficheCase(case(X,Y)):-etatCase(case(X,Y),LP), length(LP,N),N=10, nth0(0,LP,personnage(P0,_,_,_,_)),nth0(1,LP,personnage(P1,_,_,_,_)),nth0(2,LP,personnage(P2,_,_,_,_)),nth0(3,LP,personnage(P3,_,_,_,_)),nth0(4,LP,personnage(P4,_,_,_,_)),nth0(5,LP,personnage(P5,_,_,_,_)),nth0(6,LP,personnage(P6,_,_,_,_)),nth0(7,LP,personnage(P7,_,_,_,_)),nth0(8,LP,personnage(P8,_,_,_,_)),nth0(9,LP,personnage(P9,_,_,_,_)), write(P0),write(P1),write(P2),write(P3),write(P4),write(P5),write(P6),write(P7),write(P8),write(P9),write('      ').
+afficheCase(case(X,Y)):-etatCase(case(X,Y),LP), length(LP,N),N=11, nth0(0,LP,personnage(P0,_,_,_,_)),nth0(1,LP,personnage(P1,_,_,_,_)),nth0(2,LP,personnage(P2,_,_,_,_)),nth0(3,LP,personnage(P3,_,_,_,_)),nth0(4,LP,personnage(P4,_,_,_,_)),nth0(5,LP,personnage(P5,_,_,_,_)),nth0(6,LP,personnage(P6,_,_,_,_)),nth0(7,LP,personnage(P7,_,_,_,_)),nth0(8,LP,personnage(P8,_,_,_,_)),nth0(9,LP,personnage(P9,_,_,_,_)),nth0(10,LP,personnage(P10,_,_,_,_)), write(P0),write(P1),write(P2),write(P3),write(P4),write(P5),write(P6),write(P7),write(P8),write(P9),write(P10),write('     ').
+afficheCase(case(X,Y)):-etatCase(case(X,Y),LP), length(LP,N),N=12, nth0(0,LP,personnage(P0,_,_,_,_)),nth0(1,LP,personnage(P1,_,_,_,_)),nth0(2,LP,personnage(P2,_,_,_,_)),nth0(3,LP,personnage(P3,_,_,_,_)),nth0(4,LP,personnage(P4,_,_,_,_)),nth0(5,LP,personnage(P5,_,_,_,_)),nth0(6,LP,personnage(P6,_,_,_,_)),nth0(7,LP,personnage(P7,_,_,_,_)),nth0(8,LP,personnage(P8,_,_,_,_)),nth0(9,LP,personnage(P9,_,_,_,_)),nth0(10,LP,personnage(P10,_,_,_,_)),nth0(11,LP,personnage(P11,_,_,_,_)), write(P0),write(P1),write(P2),write(P3),write(P4),write(P5),write(P6),write(P7),write(P8),write(P9),write(P10),write(P11),write('    ').
+afficheCase(case(X,Y)):-etatCase(case(X,Y),LP), length(LP,N),N=13, nth0(0,LP,personnage(P0,_,_,_,_)),nth0(1,LP,personnage(P1,_,_,_,_)),nth0(2,LP,personnage(P2,_,_,_,_)),nth0(3,LP,personnage(P3,_,_,_,_)),nth0(4,LP,personnage(P4,_,_,_,_)),nth0(5,LP,personnage(P5,_,_,_,_)),nth0(6,LP,personnage(P6,_,_,_,_)),nth0(7,LP,personnage(P7,_,_,_,_)),nth0(8,LP,personnage(P8,_,_,_,_)),nth0(9,LP,personnage(P9,_,_,_,_)),nth0(10,LP,personnage(P10,_,_,_,_)),nth0(11,LP,personnage(P11,_,_,_,_)),nth0(12,LP,personnage(P12,_,_,_,_)), write(P0),write(P1),write(P2),write(P3),write(P4),write(P5),write(P6),write(P7),write(P8),write(P9),write(P10),write(P11),write(P12),write('   ').
+afficheCase(case(X,Y)):-etatCase(case(X,Y),LP), length(LP,N),N=14, nth0(0,LP,personnage(P0,_,_,_,_)),nth0(1,LP,personnage(P1,_,_,_,_)),nth0(2,LP,personnage(P2,_,_,_,_)),nth0(3,LP,personnage(P3,_,_,_,_)),nth0(4,LP,personnage(P4,_,_,_,_)),nth0(5,LP,personnage(P5,_,_,_,_)),nth0(6,LP,personnage(P6,_,_,_,_)),nth0(7,LP,personnage(P7,_,_,_,_)),nth0(8,LP,personnage(P8,_,_,_,_)),nth0(9,LP,personnage(P9,_,_,_,_)),nth0(10,LP,personnage(P10,_,_,_,_)),nth0(11,LP,personnage(P11,_,_,_,_)),nth0(12,LP,personnage(P12,_,_,_,_)),nth0(13,LP,personnage(P13,_,_,_,_)), write(P0),write(P1),write(P2),write(P3),write(P4),write(P5),write(P6),write(P7),write(P8),write(P9),write(P10),write(P11),write(P12),write(P13),write('  ').
+afficheCase(case(X,Y)):-etatCase(case(X,Y),LP), length(LP,N),N=15, nth0(0,LP,personnage(P0,_,_,_,_)),nth0(1,LP,personnage(P1,_,_,_,_)),nth0(2,LP,personnage(P2,_,_,_,_)),nth0(3,LP,personnage(P3,_,_,_,_)),nth0(4,LP,personnage(P4,_,_,_,_)),nth0(5,LP,personnage(P5,_,_,_,_)),nth0(6,LP,personnage(P6,_,_,_,_)),nth0(7,LP,personnage(P7,_,_,_,_)),nth0(8,LP,personnage(P8,_,_,_,_)),nth0(9,LP,personnage(P9,_,_,_,_)),nth0(10,LP,personnage(P10,_,_,_,_)),nth0(11,LP,personnage(P11,_,_,_,_)),nth0(12,LP,personnage(P12,_,_,_,_)),nth0(13,LP,personnage(P13,_,_,_,_)),nth0(14,LP,personnage(P14,_,_,_,_)),write(P0),write(P1),write(P2),write(P3),write(P4),write(P5),write(P6),write(P7),write(P8),write(P9),write(P10),write(P11),write(P12),write(P13),write(P14),write(' ').
+afficheCase(case(X,Y)):-etatCase(case(X,Y),LP), length(LP,N),N=16, nth0(0,LP,personnage(P0,_,_,_,_)),nth0(1,LP,personnage(P1,_,_,_,_)),nth0(2,LP,personnage(P2,_,_,_,_)),nth0(3,LP,personnage(P3,_,_,_,_)),nth0(4,LP,personnage(P4,_,_,_,_)),nth0(5,LP,personnage(P5,_,_,_,_)),nth0(6,LP,personnage(P6,_,_,_,_)),nth0(7,LP,personnage(P7,_,_,_,_)),nth0(8,LP,personnage(P8,_,_,_,_)),nth0(9,LP,personnage(P9,_,_,_,_)),nth0(10,LP,personnage(P10,_,_,_,_)),nth0(11,LP,personnage(P11,_,_,_,_)),nth0(12,LP,personnage(P12,_,_,_,_)),nth0(13,LP,personnage(P13,_,_,_,_)),nth0(14,LP,personnage(P14,_,_,_,_)),nth0(15,LP,personnage(P15,_,_,_,_)),write(P0),write(P1),write(P2),write(P3),write(P4),write(P5),write(P6),write(P7),write(P8),write(P9),write(P10),write(P11),write(P12),write(P13),write(P14),write(P15).
+
+afficheLigne:-write('\n ________________ ________________ ________________ ________________ \n').
+
+afficheLigne1:-afficheLigne,write('|'),afficheCase(case(1,1)),write('|'),afficheCase(case(1,2)),write('|'),afficheCase(case(1,3)),write('|'),afficheCase(case(1,4)),write('|').
+afficheLigne2:-afficheLigne,write('|'),afficheCase(case(2,1)),write('|'),afficheCase(case(2,2)),write('|'),afficheCase(case(2,3)),write('|'),afficheCase(case(2,4)),write('|').
+afficheLigne3:-afficheLigne,write('|'),afficheCase(case(3,1)),write('|'),afficheCase(case(3,2)),write('|'),afficheCase(case(3,3)),write('|'),afficheCase(case(3,4)),write('|').
+afficheLigne4:-afficheLigne,write('|'),afficheCase(case(4,1)),write('|'),afficheCase(case(4,2)),write('|'),afficheCase(case(4,3)),write('|'),afficheCase(case(4,4)),write('|'),afficheLigne.
+
+affichePlateau:-afficheLigne1,afficheLigne2,afficheLigne3,afficheLigne4.
