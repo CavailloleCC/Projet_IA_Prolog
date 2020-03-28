@@ -155,4 +155,6 @@ afficheLigne2:-afficheLigne,write('|'),afficheCase(case(2,1)),write('|'),affiche
 afficheLigne3:-afficheLigne,write('|'),afficheCase(case(3,1)),write('|'),afficheCase(case(3,2)),write('|'),afficheCase(case(3,3)),write('|'),afficheCase(case(3,4)),write('|').
 afficheLigne4:-afficheLigne,write('|'),afficheCase(case(4,1)),write('|'),afficheCase(case(4,2)),write('|'),afficheCase(case(4,3)),write('|'),afficheCase(case(4,4)),write('|'),afficheLigne.
 
-affichePlateau:-afficheLigne1,afficheLigne2,afficheLigne3,afficheLigne4.
+affichePersonnages:-personnage(PK,_,_,k,j),findall(personnage(PC,_,_,c,j),personnage(PC,_,_,c,j),LC),nth0(0,LC,personnage(P0,_,_,c,j)),nth0(1,LC,personnage(P1,_,_,c,j)),nth0(2,LC,personnage(P2,_,_,c,j)),write('\nVotre killer est : '),write(PK),write('\nVos cibles sont : '),write(P0),write(', '),write(P1),write(', '),write(P2).
+
+affichePlateau:-afficheLigne1,afficheLigne2,afficheLigne3,afficheLigne4, affichePersonnages.
