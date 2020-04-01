@@ -59,8 +59,15 @@ personnagesOrdinateur(LP):-findall(personnage(P,X,Y,R,o),personnage(P,X,Y,R,o),L
 case(X,Y):- integer(X),integer(Y),X >= 1, X =< 4, Y >= 1, Y =< 4.
 etatCase(case(X,Y),LP):- findall(personnage(P,X,Y,R,A), personnage(P,X,Y,R,A), LP).
 
+%Changement de tour
+changerTour:-tour(joueur),retract(tour(joueur)),assert(tour(ordi)).
+changerTour:-tour(ordi),retract(tour(ordi)),assert(tour(joueur)).
+
 %%Déplacer un personnage
 deplacer(P,X,Y):- case(X,Y), retract(personnage(P,_,_,R,A)), assert(personnage(P,X,Y,R,A)).
+
+%Deplacer un personnage par le joueur
+deplacerPersonnage(P,X,Y):- case(X,Y), retract(personnage(P,_,_,R,A)), assert(personnage(P,X,Y,R,A)),affichePlateau,verifierFin.
 
 %Déplacer un personnage au hasard
 deplacerOrdi(P):-listPersonnages(LP),random_member(personnage(P,_,_,_,_),LP),random_member(X,[1,2,3,4]),random_member(Y,[1,2,3,4]),deplacer(P,X,Y).
@@ -95,10 +102,10 @@ listSuspect(LS,P):-setof(P1, estSuspect(P1,P), LS).
 
 %%Tuer un personnage
 %Stratégie joueur : tuer par un joueur
-tuer(P1,P2):-personnage(P1,_,_,k,j),personnage(P2,_,_,R,A),peutTuer(P1,P2),retract(personnage(P2,_,_,R,A)),R=c,A=j,scoreJoueur(S),S1 is S+1,retract(scoreJoueur(S)),assert(scoreJoueur(S1)).
-tuer(P1,P2):-personnage(P1,_,_,k,j),personnage(P2,_,_,R,A),peutTuer(P1,P2),retract(personnage(P2,_,_,R,A)),R=k,A=o,scoreJoueur(S),S1 is S+3,retract(scoreJoueur(S)),assert(scoreJoueur(S1)),retract(gagnant(null)),assert(gagnant(joueur)).
-tuer(P1,P2):-personnage(P1,_,_,R,j),personnage(P2,_,_,_,_),R\=k,write('Veuillez utiliser votre killer pour tuer.').
-
+tuer(P1,P2):-personnage(P1,_,_,k,j),personnage(P2,_,_,R,A),peutTuer(P1,P2),retract(personnage(P2,_,_,R,A)),R=c,A=j,scoreJoueur(S),S1 is S+1,retract(scoreJoueur(S)),assert(scoreJoueur(S1)),affichePlateau,verifierFin.
+tuer(P1,P2):-personnage(P1,_,_,k,j),personnage(P2,_,_,R,A),peutTuer(P1,P2),retract(personnage(P2,_,_,R,A)),R=k,A=o,scoreJoueur(S),S1 is S+3,retract(scoreJoueur(S)),assert(scoreJoueur(S1)),retract(gagnant(null)),assert(gagnant(joueur)),affichePlateau,verifierFin.
+tuer(P1,P2):-personnage(P1,_,_,R,j),personnage(P2,_,_,_,_),R\=k,write('Veuillez utiliser votre killer pour tuer.'),actionJoueur.
+tuer(P1,P2):-personnage(P1,_,_,_,A),personnage(P2,_,_,_,_),A\=j,write('Veuillez utiliser votre killer pour tuer.'),actionJoueur.
 
 %Stratégie ordinateur : P1 tue P2 si il existe au moins 1 autre suspect que P1 (pour pas se faire démasquer)
 tuerOrdi(P1,P2):-personnage(P1,_,_,k,o),personnage(P2,_,_,_,A),A\=o,peutTuer(P1,P2),tueurAdverse(P2),listSuspect(LS,P2),length(LS,N),N>=1,retract(personnage(P2,_,_,_,A)),scoreOrdi(S),S1 is S+3, retract(scoreOrdi(S)), assert(scoreOrdi(S1)),retract(gagnant(null)),assert(gagnant(ordi)).
@@ -110,6 +117,14 @@ modifierSuspects(P):-listSuspect(LS,P),suspects(L),length(L,N),N>=1,intersection
 %Tueur adverse trouvé
 tueurAdverse(P):-suspects(L),length(L,1),member(P,L).
 
+%Action du joueur virtuel : tue si il a trouvé le tueur adverse et que son killer peut tuer
+actionOrdi:-tuerOrdi(P1,P2),verifierFin.
+actionOrdi:-deplacerOrdi(P),write('\n\nTour joueur virtuel : '),affichePlateau,verifierFin.
+
+%Action du joueur : affichage des consignes pour action du joueur
+actionJoueur:-write('\n\nA votre tour de jouer\nPour deplacer un personnage p sur la case (x,y) : deplacerPersonnage(p,x,y).\nPour tuer un personnage p2 avec votre killer p1 : tuer(p1,p2).').
+
+
 %Vérifier si la partie est terminée
 verifierFin:-gagnant(joueur),scoreJoueur(SJ),scoreOrdi(SO),SJ>SO,write('La partie est terminée.Vous avez gagné !').
 verifierFin:-gagnant(joueur),scoreJoueur(SJ),scoreOrdi(SO),SJ<SO,write('La partie est terminée.L adversaire a gagné !').
@@ -117,14 +132,9 @@ verifierFin:-gagnant(ordi),scoreJoueur(SJ),scoreOrdi(SO),SJ>SO,write('La partie 
 verifierFin:-gagnant(ordi),scoreJoueur(SJ),scoreOrdi(SO),SJ<SO,write('La partie est terminée.L adversaire a gagné !').
 verifierFin:-gagnant(joueur),scoreJoueur(SJ),scoreOrdi(SO),SJ=SO,write('La partie est terminée.Vous êtes à égalité !').
 verifierFin:-gagnant(ordi),scoreJoueur(SJ),scoreOrdi(SO),SJ=SO,write('La partie est terminée.Vous êtes à égalité !').
+verifierFin:-tour(joueur),changerTour,actionOrdi.
+verifierFin:-tour(ordi),changerTour,actionJoueur.
 
-%Changement de tour
-changerTour:-tour(joueur),retract(tour(joueur)),assert(tour(ordi)).
-changerTour:-tour(ordi),retract(tour(ordi)),assert(tour(joueur)).
-
-
-%Prédicat test
-modifierScore(scoreOrdi(X)):-retract(scoreOrdi(X)),Y is X+3,assert(scoreOrdi(Y)).
 
 %Affichages
 
@@ -156,5 +166,7 @@ afficheLigne3:-afficheLigne,write('|'),afficheCase(case(3,1)),write('|'),affiche
 afficheLigne4:-afficheLigne,write('|'),afficheCase(case(4,1)),write('|'),afficheCase(case(4,2)),write('|'),afficheCase(case(4,3)),write('|'),afficheCase(case(4,4)),write('|'),afficheLigne.
 
 affichePersonnages:-personnage(PK,_,_,k,j),findall(personnage(PC,_,_,c,j),personnage(PC,_,_,c,j),LC),nth0(0,LC,personnage(P0,_,_,c,j)),nth0(1,LC,personnage(P1,_,_,c,j)),nth0(2,LC,personnage(P2,_,_,c,j)),write('\nVotre killer est : '),write(PK),write('\nVos cibles sont : '),write(P0),write(', '),write(P1),write(', '),write(P2).
+
+afficheDebut:-afficheLigne1,afficheLigne2,afficheLigne3,afficheLigne4, affichePersonnages,actionJoueur.
 
 affichePlateau:-afficheLigne1,afficheLigne2,afficheLigne3,afficheLigne4, affichePersonnages.
