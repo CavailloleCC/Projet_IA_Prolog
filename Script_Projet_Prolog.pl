@@ -102,18 +102,18 @@ voisinDroit(P,LP):-personnage(P,X,Y,_,_),Y=<4,Y1 is Y+1,findall(personnage(P1,X,
     peutTuer(P1,P2):-personnage(P1,X,Y,_,_),voisinBas(P1,LP),member(personnage(P2,_,_,_,_),LP),etatCase(case(X,Y),L),length(L,1).
 
 %Stratégie ordinateur : seuls les personnages appartenant pas au joueur virtuel peuvent être suspects
-estSuspect(P1,P2):-A\=o,personnage(P1,_,_,_,A),peutTuer(P1,P2).
+estSuspect(P1,P2):-personnage(P1,_,_,_,A),A\=o,peutTuer(P1,P2).
 
 %Récupération de la liste des suspects qui peuvent tuer P. LS = liste suspects
 listSuspect(LS,P):-setof(P1, estSuspect(P1,P), LS).
 
 %%Tuer un personnage
 %Stratégie joueur : tuer par un joueur
-tuer(P1,P2):-personnage(P1,_,_,k,j),personnage(P2,_,_,c,j),peutTuer(P1,P2),retract(personnage(P2,_,_,R,A)),scoreJoueur(S),S1 is S+1,retract(scoreJoueur(S)),assert(scoreJoueur(S1)),affichePlateau,verifierFin.
-tuer(P1,P2):-personnage(P1,_,_,k,j),personnage(P2,_,_,k,o),peutTuer(P1,P2),retract(personnage(P2,_,_,R,A)),scoreJoueur(S),S1 is S+3,retract(scoreJoueur(S)),assert(scoreJoueur(S1)),retract(gagnant(null)),assert(gagnant(joueur)),affichePlateau,verifierFin.
+tuer(P1,P2):-personnage(P1,_,_,k,j),personnage(P2,_,_,c,j),peutTuer(P1,P2),modifierSuspects(P2),retract(personnage(P2,_,_,R,A)),scoreJoueur(S),S1 is S+1,retract(scoreJoueur(S)),assert(scoreJoueur(S1)),affichePlateau,verifierFin.
+tuer(P1,P2):-personnage(P1,_,_,k,j),personnage(P2,_,_,k,o),peutTuer(P1,P2),modifierSuspects(P2),retract(personnage(P2,_,_,R,A)),scoreJoueur(S),S1 is S+3,retract(scoreJoueur(S)),assert(scoreJoueur(S1)),retract(gagnant(null)),assert(gagnant(joueur)),affichePlateau,verifierFin.
 tuer(P1,P2):-personnage(P1,_,_,R,j),personnage(P2,_,_,_,_),R\=k,write('Veuillez utiliser votre killer pour tuer.'),actionJoueur.
 tuer(P1,P2):-personnage(P1,_,_,_,A),personnage(P2,_,_,_,_),A\=j,write('Veuillez utiliser votre killer pour tuer.'),actionJoueur.
-tuer(P1,P2):-personnage(P1,_,_,_,j),personnage(P2,_,_,_,_),peutTuer(P1,P2),retract(personnage(P2,_,_,_,_)),affichePlateau,verifierFin.
+tuer(P1,P2):-personnage(P1,_,_,_,j),personnage(P2,_,_,_,_),peutTuer(P1,P2),modifierSuspects(P2),retract(personnage(P2,_,_,_,_)),affichePlateau,verifierFin.
 tuer(P1,P2):-personnage(P1,_,_,_,j),personnage(P2,_,_,_,_),write('Votre killer doit être seul dans sa case pour pouvoir tuer par sniper ou par pistolet.').
 
 %Stratégie ordinateur : P1 tue P2 si il existe au moins 1 autre suspect que P1 (pour pas se faire démasquer)
@@ -135,12 +135,12 @@ actionJoueur:-write('\n\nA votre tour de jouer\nPour deplacer un personnage p su
 
 
 %Vérifier si la partie est terminée
-verifierFin:-gagnant(joueur),scoreJoueur(SJ),scoreOrdi(SO),SJ>SO,write('\nLa partie est terminée.Vous avez gagné !').
-verifierFin:-gagnant(joueur),scoreJoueur(SJ),scoreOrdi(SO),SJ<SO,write('\nLa partie est terminée.L adversaire a gagné !').
-verifierFin:-gagnant(ordi),scoreJoueur(SJ),scoreOrdi(SO),SJ>SO,write('\nLa partie est terminée.Vous avez gagné !').
-verifierFin:-gagnant(ordi),scoreJoueur(SJ),scoreOrdi(SO),SJ<SO,write('\nLa partie est terminée.L adversaire a gagné !').
-verifierFin:-gagnant(joueur),scoreJoueur(SJ),scoreOrdi(SO),SJ=SO,write('\nLa partie est terminée.Vous êtes à égalité !').
-verifierFin:-gagnant(ordi),scoreJoueur(SJ),scoreOrdi(SO),SJ=SO,write('\nLa partie est terminée.Vous êtes à égalité !').
+verifierFin:-gagnant(joueur),scoreJoueur(SJ),scoreOrdi(SO),SJ>SO,write('\nLa partie est terminée.Vous avez gagné !\n\nPour quitter entrez "quitter."').
+verifierFin:-gagnant(joueur),scoreJoueur(SJ),scoreOrdi(SO),SJ<SO,write('\nLa partie est terminée.L adversaire a gagné !\n\nPour quitter entrez "quitter.').
+verifierFin:-gagnant(ordi),scoreJoueur(SJ),scoreOrdi(SO),SJ>SO,write('\nLa partie est terminée.Vous avez gagné !\n\nPour quitter entrez "quitter.').
+verifierFin:-gagnant(ordi),scoreJoueur(SJ),scoreOrdi(SO),SJ<SO,write('\nLa partie est terminée.L adversaire a gagné !\n\nPour quitter entrez "quitter.').
+verifierFin:-gagnant(joueur),scoreJoueur(SJ),scoreOrdi(SO),SJ=SO,write('\nLa partie est terminée.Vous êtes à égalité !\n\nPour quitter entrez "quitter.').
+verifierFin:-gagnant(ordi),scoreJoueur(SJ),scoreOrdi(SO),SJ=SO,write('\nLa partie est terminée.Vous êtes à égalité !\n\nPour quitter entrez "quitter.').
 verifierFin:-tour(joueur),changerTour,actionOrdi.
 verifierFin:-tour(ordi),changerTour,actionJoueur.
 
@@ -184,3 +184,5 @@ affichePersonnages:-personnage(PK,_,_,k,j),caseSniper(s1,X1,Y1),caseSniper(s2,X2
 afficheDebut:-initialiserPlateau,afficheLigne1,afficheLigne2,afficheLigne3,afficheLigne4, affichePersonnages,actionJoueur.
 
 affichePlateau:-afficheLigne1,afficheLigne2,afficheLigne3,afficheLigne4,affichePersonnages.
+
+quitter :- halt.
