@@ -7,6 +7,7 @@
 :-dynamic scoreOrdi/1.
 :-dynamic gagnant/1.
 :-dynamic tour/1.
+:-dynamic caseSniper/3.
 
 personnage(a,_,_,r,n).
 personnage(b,_,_,r,n).
@@ -25,9 +26,9 @@ personnage(n,_,_,c,o).
 personnage(o,_,_,c,o).
 personnage(p,_,_,r,n).
 
-caseSniper(2,3).
-caseSniper(1,2).
-caseSniper(4,1).
+caseSniper(s1,_,_).
+caseSniper(s2,_,_).
+caseSniper(s3,_,_).
 
 role(r).
 role(k).
@@ -66,9 +67,12 @@ changerTour:-tour(ordi),retract(tour(ordi)),assert(tour(joueur)).
 %%Déplacer un personnage
 deplacer(P,X,Y):- case(X,Y), retract(personnage(P,_,_,R,A)), assert(personnage(P,X,Y,R,A)).
 
+%Initialisation des caseSniper aléatoire
+initialiserSniper:-random_member(X1,[1,2,3,4]),random_member(Y1,[1,2,3,4]),retract(caseSniper(s1,_,_)),assert(caseSniper(s1,X1,Y1)),delete([1,2,3,4],X1,L),random_member(X2,L),random_member(Y2,[1,2,3,4]),retract(caseSniper(s2,_,_)),assert(caseSniper(s2,X2,Y2)),delete(L,X2,L1),random_member(X3,L1),random_member(Y3,[1,2,3,4]),retract(caseSniper(s3,_,_)),assert(caseSniper(s3,X3,Y3)).
+
 %Initialisation du placement des personnages aléatoire
 initialiserPlacement(P):-random_member(X,[1,2,3,4]),random_member(Y,[1,2,3,4]),deplacer(P,X,Y).
-initialiserPlateau:-initialiserPlacement(a),initialiserPlacement(b),initialiserPlacement(c),initialiserPlacement(d),initialiserPlacement(e),initialiserPlacement(f),initialiserPlacement(g),initialiserPlacement(h),initialiserPlacement(i),initialiserPlacement(j),initialiserPlacement(k),initialiserPlacement(l),initialiserPlacement(m),initialiserPlacement(n),initialiserPlacement(o),initialiserPlacement(p).
+initialiserPlateau:-initialiserPlacement(a),initialiserPlacement(b),initialiserPlacement(c),initialiserPlacement(d),initialiserPlacement(e),initialiserPlacement(f),initialiserPlacement(g),initialiserPlacement(h),initialiserPlacement(i),initialiserPlacement(j),initialiserPlacement(k),initialiserPlacement(l),initialiserPlacement(m),initialiserPlacement(n),initialiserPlacement(o),initialiserPlacement(p),initialiserSniper.
 
 %Deplacer un personnage par le joueur
 deplacerPersonnage(P,X,Y):- case(X,Y), retract(personnage(P,_,_,R,A)), assert(personnage(P,X,Y,R,A)),affichePlateau,verifierFin.
@@ -89,8 +93,8 @@ voisinDroit(P,LP):-personnage(P,X,Y,_,_),Y=<4,Y1 is Y+1,findall(personnage(P1,X,
     peutTuer(P1,P2):-P1 \= P2,personnage(P1,X,Y,_,_),personnage(P2,X,Y,_,_).
 
     %tuer par sniper
-    peutTuer(P1,P2):-P1 \= P2,personnage(P1,X,Y,_,_),caseSniper(X,Y), personnage(P2,X,_,_,_),etatCase(case(X,Y),L),length(L,1).
-    peutTuer(P1,P2):-P1 \= P2,personnage(P1,X,Y,_,_),caseSniper(X,Y), personnage(P2,_,Y,_,_),etatCase(case(X,Y),L),length(L,1).
+    peutTuer(P1,P2):-P1 \= P2,personnage(P1,X,Y,_,_),caseSniper(_,X,Y), personnage(P2,X,_,_,_),etatCase(case(X,Y),L),length(L,1).
+    peutTuer(P1,P2):-P1 \= P2,personnage(P1,X,Y,_,_),caseSniper(_,X,Y), personnage(P2,_,Y,_,_),etatCase(case(X,Y),L),length(L,1).
 
     %tuer par pistolet
     peutTuer(P1,P2):-personnage(P1,X,Y,_,_),voisinGauche(P1,LP),member(personnage(P2,_,_,_,_),LP),etatCase(case(X,Y),L),length(L,1).
@@ -126,7 +130,7 @@ actionOrdi:-tuerOrdi(P1,P2),verifierFin.
 actionOrdi:-deplacerOrdi(P),write('\n\nTour joueur virtuel : '),affichePlateau,verifierFin.
 
 %Action du joueur : affichage des consignes pour action du joueur
-actionJoueur:-write('\n\nA votre tour de jouer\nPour deplacer un personnage p sur la case (x,y) : deplacerPersonnage(p,x,y).\nPour tuer un personnage p2 avec votre killer p1 : tuer(p1,p2).').
+actionJoueur:-write('\n\nA votre tour de jouer\nPour deplacer un personnage p sur la case (ligne,colonne) : deplacerPersonnage(p,ligne,colonne).\nPour tuer un personnage p2 avec votre killer p1 : tuer(p1,p2).').
 
 
 %Vérifier si la partie est terminée
@@ -169,7 +173,7 @@ afficheLigne2:-afficheLigne,write('|'),afficheCase(case(2,1)),write('|'),affiche
 afficheLigne3:-afficheLigne,write('|'),afficheCase(case(3,1)),write('|'),afficheCase(case(3,2)),write('|'),afficheCase(case(3,3)),write('|'),afficheCase(case(3,4)),write('|').
 afficheLigne4:-afficheLigne,write('|'),afficheCase(case(4,1)),write('|'),afficheCase(case(4,2)),write('|'),afficheCase(case(4,3)),write('|'),afficheCase(case(4,4)),write('|'),afficheLigne.
 
-affichePersonnages:-personnage(PK,_,_,k,j),findall(personnage(PC,_,_,c,j),personnage(PC,_,_,c,j),LC),nth0(0,LC,personnage(P0,_,_,c,j)),nth0(1,LC,personnage(P1,_,_,c,j)),nth0(2,LC,personnage(P2,_,_,c,j)),findall(caseSniper(X,Y),caseSniper(X,Y),LS),nth0(0,LS,caseSniper(X0,Y0)),nth0(1,LS,caseSniper(X1,Y1)),nth0(2,LS,caseSniper(X2,Y2)),write('\nLes cases Sniper sont : '),write(caseSniper(X0,Y0)),write(', '),write(caseSniper(X1,Y1)),write(', '),write(caseSniper(X2,Y2)),write('\nVotre killer est : '),write(PK),write('\nVos cibles sont : '),write(P0),write(', '),write(P1),write(', '),write(P2).
+affichePersonnages:-personnage(PK,_,_,k,j),findall(personnage(PC,_,_,c,j),personnage(PC,_,_,c,j),LC),nth0(0,LC,personnage(P0,_,_,c,j)),nth0(1,LC,personnage(P1,_,_,c,j)),nth0(2,LC,personnage(P2,_,_,c,j)),caseSniper(s1,X1,Y1),caseSniper(s2,X2,Y2),caseSniper(s3,X3,Y3),write('\nLes cases Sniper sont : '),write(caseSniper(s1,X1,Y1)),write(', '),write(caseSniper(s2,X2,Y2)),write(', '),write(caseSniper(s3,X3,Y3)),write('\nVotre killer est : '),write(PK),write('\nVos cibles sont : '),write(P0),write(', '),write(P1),write(', '),write(P2).
 
 afficheDebut:-initialiserPlateau,afficheLigne1,afficheLigne2,afficheLigne3,afficheLigne4, affichePersonnages,actionJoueur.
 
