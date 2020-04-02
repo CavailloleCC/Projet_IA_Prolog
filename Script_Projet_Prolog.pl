@@ -110,10 +110,11 @@ listSuspect(LS,P):-setof(P1, estSuspect(P1,P), LS).
 
 %%Tuer un personnage
 %Stratégie joueur : tuer par un joueur
-tuer(P1,P2):-personnage(P1,_,_,k,j),personnage(P2,_,_,R,A),peutTuer(P1,P2),retract(personnage(P2,_,_,R,A)),R=c,A=j,scoreJoueur(S),S1 is S+1,retract(scoreJoueur(S)),assert(scoreJoueur(S1)),affichePlateau,verifierFin.
-tuer(P1,P2):-personnage(P1,_,_,k,j),personnage(P2,_,_,R,A),peutTuer(P1,P2),retract(personnage(P2,_,_,R,A)),R=k,A=o,scoreJoueur(S),S1 is S+3,retract(scoreJoueur(S)),assert(scoreJoueur(S1)),retract(gagnant(null)),assert(gagnant(joueur)),affichePlateau,verifierFin.
+tuer(P1,P2):-personnage(P1,_,_,k,j),personnage(P2,_,_,c,j),peutTuer(P1,P2),retract(personnage(P2,_,_,R,A)),scoreJoueur(S),S1 is S+1,retract(scoreJoueur(S)),assert(scoreJoueur(S1)),affichePlateau,verifierFin.
+tuer(P1,P2):-personnage(P1,_,_,k,j),personnage(P2,_,_,k,o),peutTuer(P1,P2),retract(personnage(P2,_,_,R,A)),scoreJoueur(S),S1 is S+3,retract(scoreJoueur(S)),assert(scoreJoueur(S1)),retract(gagnant(null)),assert(gagnant(joueur)),affichePlateau,verifierFin.
 tuer(P1,P2):-personnage(P1,_,_,R,j),personnage(P2,_,_,_,_),R\=k,write('Veuillez utiliser votre killer pour tuer.'),actionJoueur.
 tuer(P1,P2):-personnage(P1,_,_,_,A),personnage(P2,_,_,_,_),A\=j,write('Veuillez utiliser votre killer pour tuer.'),actionJoueur.
+tuer(P1,P2):-personnage(P1,_,_,_,j),personnage(P2,_,_,_,_),peutTuer(P1,P2),retract(personnage(P2,_,_,_,_)),affichePlateau,verifierFin.
 
 %Stratégie ordinateur : P1 tue P2 si il existe au moins 1 autre suspect que P1 (pour pas se faire démasquer)
 tuerOrdi(P1,P2):-personnage(P1,_,_,k,o),personnage(P2,_,_,_,A),A\=o,peutTuer(P1,P2),tueurAdverse(P2),listSuspect(LS,P2),length(LS,N),N>=1,retract(personnage(P2,_,_,_,A)),scoreOrdi(S),S1 is S+3, retract(scoreOrdi(S)), assert(scoreOrdi(S1)),retract(gagnant(null)),assert(gagnant(ordi)).
@@ -176,7 +177,10 @@ afficheLigne3:-afficheLigne,write('3 |'),afficheCase(case(3,1)),write('|'),affic
 afficheLigne4:-afficheLigne,write('4 |'),afficheCase(case(4,1)),write('|'),afficheCase(case(4,2)),write('|'),afficheCase(case(4,3)),write('|'),afficheCase(case(4,4)),write('|'),afficheLigne.
 
 affichePersonnages:-personnage(PK,_,_,k,j),findall(personnage(PC,_,_,c,j),personnage(PC,_,_,c,j),LC),nth0(0,LC,personnage(P0,_,_,c,j)),nth0(1,LC,personnage(P1,_,_,c,j)),nth0(2,LC,personnage(P2,_,_,c,j)),caseSniper(s1,X1,Y1),caseSniper(s2,X2,Y2),caseSniper(s3,X3,Y3),write('\n\nLes cases Sniper sont : '),write(caseSniper(s1,X1,Y1)),write(', '),write(caseSniper(s2,X2,Y2)),write(', '),write(caseSniper(s3,X3,Y3)),write('\nVotre killer est : '),write(PK),write('\nVos cibles sont : '),write(P0),write(', '),write(P1),write(', '),write(P2).
+affichePersonnages:-personnage(PK,_,_,k,j),findall(personnage(PC,_,_,c,j),personnage(PC,_,_,c,j),LC),nth0(0,LC,personnage(P0,_,_,c,j)),nth0(1,LC,personnage(P1,_,_,c,j)),caseSniper(s1,X1,Y1),caseSniper(s2,X2,Y2),caseSniper(s3,X3,Y3),write('\n\nLes cases Sniper sont : '),write(caseSniper(s1,X1,Y1)),write(', '),write(caseSniper(s2,X2,Y2)),write(', '),write(caseSniper(s3,X3,Y3)),write('\nVotre killer est : '),write(PK),write('\nVos cibles sont : '),write(P0),write(', '),write(P1),write(', ').
+affichePersonnages:-personnage(PK,_,_,k,j),findall(personnage(PC,_,_,c,j),personnage(PC,_,_,c,j),LC),nth0(0,LC,personnage(P0,_,_,c,j)),caseSniper(s1,X1,Y1),caseSniper(s2,X2,Y2),caseSniper(s3,X3,Y3),write('\n\nLes cases Sniper sont : '),write(caseSniper(s1,X1,Y1)),write(', '),write(caseSniper(s2,X2,Y2)),write(', '),write(caseSniper(s3,X3,Y3)),write('\nVotre killer est : '),write(PK),write('\nVos cibles sont : '),write(P0),write(', ').
+affichePersonnages:-personnage(PK,_,_,k,j),caseSniper(s1,X1,Y1),caseSniper(s2,X2,Y2),caseSniper(s3,X3,Y3),write('\n\nLes cases Sniper sont : '),write(caseSniper(s1,X1,Y1)),write(', '),write(caseSniper(s2,X2,Y2)),write(', '),write(caseSniper(s3,X3,Y3)),write('\nVotre killer est : '),write(PK).
 
 afficheDebut:-initialiserPlateau,afficheLigne1,afficheLigne2,afficheLigne3,afficheLigne4, affichePersonnages,actionJoueur.
 
-affichePlateau:-afficheLigne1,afficheLigne2,afficheLigne3,afficheLigne4, affichePersonnages.
+affichePlateau:-afficheLigne1,afficheLigne2,afficheLigne3,afficheLigne4,affichePersonnages.
