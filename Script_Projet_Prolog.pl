@@ -77,8 +77,7 @@ initialiserPlateau:-initialiserPlacement(a),initialiserPlacement(b),initialiserP
 %Deplacer un personnage par le joueur
 deplacerPersonnage(P,X,Y):- case(X,Y), retract(personnage(P,_,_,R,A)), assert(personnage(P,X,Y,R,A)),affichePlateau,verifierFin.
 
-%Déplacer un personnage au hasard
-deplacerOrdi(P):-listPersonnages(LP),random_member(personnage(P,_,_,_,_),LP),random_member(X,[1,2,3,4]),random_member(Y,[1,2,3,4]),deplacer(P,X,Y).
+%Déplacer un personnage au hasard (on change obligatoirement le personnage de ligne)
 deplacerOrdi(P):-listPersonnages(LP),random_member(personnage(P,X,_,_,_),LP), delete([1,2,3,4],X,L),random_member(X1,L),random_member(Y,[1,2,3,4]),deplacer(P,X1,Y).
 
 
@@ -115,6 +114,7 @@ tuer(P1,P2):-personnage(P1,_,_,k,j),personnage(P2,_,_,k,o),peutTuer(P1,P2),retra
 tuer(P1,P2):-personnage(P1,_,_,R,j),personnage(P2,_,_,_,_),R\=k,write('Veuillez utiliser votre killer pour tuer.'),actionJoueur.
 tuer(P1,P2):-personnage(P1,_,_,_,A),personnage(P2,_,_,_,_),A\=j,write('Veuillez utiliser votre killer pour tuer.'),actionJoueur.
 tuer(P1,P2):-personnage(P1,_,_,_,j),personnage(P2,_,_,_,_),peutTuer(P1,P2),retract(personnage(P2,_,_,_,_)),affichePlateau,verifierFin.
+tuer(P1,P2):-personnage(P1,_,_,_,j),personnage(P2,_,_,_,_),write('Votre killer doit être seul dans sa case pour pouvoir tuer par sniper ou par pistolet.').
 
 %Stratégie ordinateur : P1 tue P2 si il existe au moins 1 autre suspect que P1 (pour pas se faire démasquer)
 tuerOrdi(P1,P2):-personnage(P1,_,_,k,o),personnage(P2,_,_,_,A),A\=o,peutTuer(P1,P2),tueurAdverse(P2),listSuspect(LS,P2),length(LS,N),N>=1,retract(personnage(P2,_,_,_,A)),scoreOrdi(S),S1 is S+3, retract(scoreOrdi(S)), assert(scoreOrdi(S1)),retract(gagnant(null)),assert(gagnant(ordi)).
@@ -135,12 +135,12 @@ actionJoueur:-write('\n\nA votre tour de jouer\nPour deplacer un personnage p su
 
 
 %Vérifier si la partie est terminée
-verifierFin:-gagnant(joueur),scoreJoueur(SJ),scoreOrdi(SO),SJ>SO,write('La partie est terminée.Vous avez gagné !').
-verifierFin:-gagnant(joueur),scoreJoueur(SJ),scoreOrdi(SO),SJ<SO,write('La partie est terminée.L adversaire a gagné !').
-verifierFin:-gagnant(ordi),scoreJoueur(SJ),scoreOrdi(SO),SJ>SO,write('La partie est terminée.Vous avez gagné !').
-verifierFin:-gagnant(ordi),scoreJoueur(SJ),scoreOrdi(SO),SJ<SO,write('La partie est terminée.L adversaire a gagné !').
-verifierFin:-gagnant(joueur),scoreJoueur(SJ),scoreOrdi(SO),SJ=SO,write('La partie est terminée.Vous êtes à égalité !').
-verifierFin:-gagnant(ordi),scoreJoueur(SJ),scoreOrdi(SO),SJ=SO,write('La partie est terminée.Vous êtes à égalité !').
+verifierFin:-gagnant(joueur),scoreJoueur(SJ),scoreOrdi(SO),SJ>SO,write('\nLa partie est terminée.Vous avez gagné !').
+verifierFin:-gagnant(joueur),scoreJoueur(SJ),scoreOrdi(SO),SJ<SO,write('\nLa partie est terminée.L adversaire a gagné !').
+verifierFin:-gagnant(ordi),scoreJoueur(SJ),scoreOrdi(SO),SJ>SO,write('\nLa partie est terminée.Vous avez gagné !').
+verifierFin:-gagnant(ordi),scoreJoueur(SJ),scoreOrdi(SO),SJ<SO,write('\nLa partie est terminée.L adversaire a gagné !').
+verifierFin:-gagnant(joueur),scoreJoueur(SJ),scoreOrdi(SO),SJ=SO,write('\nLa partie est terminée.Vous êtes à égalité !').
+verifierFin:-gagnant(ordi),scoreJoueur(SJ),scoreOrdi(SO),SJ=SO,write('\nLa partie est terminée.Vous êtes à égalité !').
 verifierFin:-tour(joueur),changerTour,actionOrdi.
 verifierFin:-tour(ordi),changerTour,actionJoueur.
 
@@ -177,8 +177,8 @@ afficheLigne3:-afficheLigne,write('3 |'),afficheCase(case(3,1)),write('|'),affic
 afficheLigne4:-afficheLigne,write('4 |'),afficheCase(case(4,1)),write('|'),afficheCase(case(4,2)),write('|'),afficheCase(case(4,3)),write('|'),afficheCase(case(4,4)),write('|'),afficheLigne.
 
 affichePersonnages:-personnage(PK,_,_,k,j),findall(personnage(PC,_,_,c,j),personnage(PC,_,_,c,j),LC),nth0(0,LC,personnage(P0,_,_,c,j)),nth0(1,LC,personnage(P1,_,_,c,j)),nth0(2,LC,personnage(P2,_,_,c,j)),caseSniper(s1,X1,Y1),caseSniper(s2,X2,Y2),caseSniper(s3,X3,Y3),write('\n\nLes cases Sniper sont : '),write(caseSniper(s1,X1,Y1)),write(', '),write(caseSniper(s2,X2,Y2)),write(', '),write(caseSniper(s3,X3,Y3)),write('\nVotre killer est : '),write(PK),write('\nVos cibles sont : '),write(P0),write(', '),write(P1),write(', '),write(P2).
-affichePersonnages:-personnage(PK,_,_,k,j),findall(personnage(PC,_,_,c,j),personnage(PC,_,_,c,j),LC),nth0(0,LC,personnage(P0,_,_,c,j)),nth0(1,LC,personnage(P1,_,_,c,j)),caseSniper(s1,X1,Y1),caseSniper(s2,X2,Y2),caseSniper(s3,X3,Y3),write('\n\nLes cases Sniper sont : '),write(caseSniper(s1,X1,Y1)),write(', '),write(caseSniper(s2,X2,Y2)),write(', '),write(caseSniper(s3,X3,Y3)),write('\nVotre killer est : '),write(PK),write('\nVos cibles sont : '),write(P0),write(', '),write(P1),write(', ').
-affichePersonnages:-personnage(PK,_,_,k,j),findall(personnage(PC,_,_,c,j),personnage(PC,_,_,c,j),LC),nth0(0,LC,personnage(P0,_,_,c,j)),caseSniper(s1,X1,Y1),caseSniper(s2,X2,Y2),caseSniper(s3,X3,Y3),write('\n\nLes cases Sniper sont : '),write(caseSniper(s1,X1,Y1)),write(', '),write(caseSniper(s2,X2,Y2)),write(', '),write(caseSniper(s3,X3,Y3)),write('\nVotre killer est : '),write(PK),write('\nVos cibles sont : '),write(P0),write(', ').
+affichePersonnages:-personnage(PK,_,_,k,j),findall(personnage(PC,_,_,c,j),personnage(PC,_,_,c,j),LC),nth0(0,LC,personnage(P0,_,_,c,j)),nth0(1,LC,personnage(P1,_,_,c,j)),caseSniper(s1,X1,Y1),caseSniper(s2,X2,Y2),caseSniper(s3,X3,Y3),write('\n\nLes cases Sniper sont : '),write(caseSniper(s1,X1,Y1)),write(', '),write(caseSniper(s2,X2,Y2)),write(', '),write(caseSniper(s3,X3,Y3)),write('\nVotre killer est : '),write(PK),write('\nVos cibles sont : '),write(P0),write(', '),write(P1).
+affichePersonnages:-personnage(PK,_,_,k,j),findall(personnage(PC,_,_,c,j),personnage(PC,_,_,c,j),LC),nth0(0,LC,personnage(P0,_,_,c,j)),caseSniper(s1,X1,Y1),caseSniper(s2,X2,Y2),caseSniper(s3,X3,Y3),write('\n\nLes cases Sniper sont : '),write(caseSniper(s1,X1,Y1)),write(', '),write(caseSniper(s2,X2,Y2)),write(', '),write(caseSniper(s3,X3,Y3)),write('\nVotre killer est : '),write(PK),write('\nVos cibles sont : '),write(P0).
 affichePersonnages:-personnage(PK,_,_,k,j),caseSniper(s1,X1,Y1),caseSniper(s2,X2,Y2),caseSniper(s3,X3,Y3),write('\n\nLes cases Sniper sont : '),write(caseSniper(s1,X1,Y1)),write(', '),write(caseSniper(s2,X2,Y2)),write(', '),write(caseSniper(s3,X3,Y3)),write('\nVotre killer est : '),write(PK).
 
 afficheDebut:-initialiserPlateau,afficheLigne1,afficheLigne2,afficheLigne3,afficheLigne4, affichePersonnages,actionJoueur.
