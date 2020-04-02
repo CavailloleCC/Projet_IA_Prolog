@@ -135,12 +135,12 @@ actionJoueur:-write('\n\nA votre tour de jouer\nPour deplacer un personnage p su
 
 
 %Vérifier si la partie est terminée
-verifierFin:-gagnant(joueur),scoreJoueur(SJ),scoreOrdi(SO),SJ>SO,write('\nLa partie est terminée.Vous avez gagné !\n\nPour quitter entrez "quitter."').
-verifierFin:-gagnant(joueur),scoreJoueur(SJ),scoreOrdi(SO),SJ<SO,write('\nLa partie est terminée.L adversaire a gagné !\n\nPour quitter entrez "quitter.').
-verifierFin:-gagnant(ordi),scoreJoueur(SJ),scoreOrdi(SO),SJ>SO,write('\nLa partie est terminée.Vous avez gagné !\n\nPour quitter entrez "quitter.').
-verifierFin:-gagnant(ordi),scoreJoueur(SJ),scoreOrdi(SO),SJ<SO,write('\nLa partie est terminée.L adversaire a gagné !\n\nPour quitter entrez "quitter.').
-verifierFin:-gagnant(joueur),scoreJoueur(SJ),scoreOrdi(SO),SJ=SO,write('\nLa partie est terminée.Vous êtes à égalité !\n\nPour quitter entrez "quitter.').
-verifierFin:-gagnant(ordi),scoreJoueur(SJ),scoreOrdi(SO),SJ=SO,write('\nLa partie est terminée.Vous êtes à égalité !\n\nPour quitter entrez "quitter.').
+verifierFin:-gagnant(joueur),scoreJoueur(SJ),scoreOrdi(SO),SJ>SO,write('\nLa partie est terminée.\nVotre score : '),write(scoreJoueur),write('/Score adversaire : '),write(scoreOrdi),write('\nVous avez gagné !\n\nPour quitter entrez "quitter."').
+verifierFin:-gagnant(joueur),scoreJoueur(SJ),scoreOrdi(SO),SJ<SO,write('\nLa partie est terminée.\nVotre score : '),write(scoreJoueur),write('/Score adversaire : '),write(scoreOrdi),write('\nL adversaire a gagné !\n\nPour quitter entrez "quitter.').
+verifierFin:-gagnant(ordi),scoreJoueur(SJ),scoreOrdi(SO),SJ>SO,write('\nLa partie est terminée.\nVotre score : '),write(scoreJoueur),write('/Score adversaire : '),write(scoreOrdi),write('\nVous avez gagné !\n\nPour quitter entrez "quitter."').
+verifierFin:-gagnant(ordi),scoreJoueur(SJ),scoreOrdi(SO),SJ<SO,write('\nLa partie est terminée.\nVotre score : '),write(scoreJoueur),write('/Score adversaire : '),write(scoreOrdi),write('\nL adversaire a gagné !\n\nPour quitter entrez "quitter.').
+verifierFin:-gagnant(joueur),scoreJoueur(SJ),scoreOrdi(SO),SJ=SO,write('\nLa partie est terminée.\nVotre score : '),write(scoreJoueur),write('/Score adversaire : '),write(scoreOrdi),write('Vous êtes à égalité !\n\nPour quitter entrez "quitter.').
+verifierFin:-gagnant(ordi),scoreJoueur(SJ),scoreOrdi(SO),SJ=SO,write('\nLa partie est terminée.\nVotre score : '),write(scoreJoueur),write('/Score adversaire : '),write(scoreOrdi),write('Vous êtes à égalité !\n\nPour quitter entrez "quitter.').
 verifierFin:-tour(joueur),changerTour,actionOrdi.
 verifierFin:-tour(ordi),changerTour,actionJoueur.
 
