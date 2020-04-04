@@ -114,7 +114,7 @@ tuer(P1,P2):-personnage(P1,_,_,k,j),personnage(P2,_,_,k,o),peutTuer(P1,P2),modif
 tuer(P1,P2):-personnage(P1,_,_,R,j),personnage(P2,_,_,_,_),R\=k,write('Veuillez utiliser votre killer pour tuer.'),actionJoueur.
 tuer(P1,P2):-personnage(P1,_,_,_,A),personnage(P2,_,_,_,_),A\=j,write('Veuillez utiliser votre killer pour tuer.'),actionJoueur.
 tuer(P1,P2):-personnage(P1,_,_,_,j),personnage(P2,_,_,_,_),peutTuer(P1,P2),modifierSuspects(P2),retract(personnage(P2,_,_,_,_)),affichePlateau,verifierFin.
-tuer(P1,P2):-personnage(P1,_,_,_,j),personnage(P2,_,_,_,_),write('Votre killer doit être seul dans sa case pour pouvoir tuer par sniper ou par pistolet.').
+tuer(P1,P2):-personnage(P1,_,_,_,j),personnage(P2,_,_,_,_),write('Votre killer doit etre seul dans sa case pour pouvoir tuer par sniper ou par pistolet.').
 
 %Stratégie ordinateur : P1 tue P2 si il existe au moins 1 autre suspect que P1 (pour pas se faire démasquer)
 tuerOrdi(P1,P2):-personnage(P1,_,_,k,o),personnage(P2,_,_,_,A),A\=o,peutTuer(P1,P2),tueurAdverse(P2),listSuspect(LS,P2),length(LS,N),N>=1,retract(personnage(P2,_,_,_,A)),scoreOrdi(S),S1 is S+3, retract(scoreOrdi(S)), assert(scoreOrdi(S1)),retract(gagnant(null)),assert(gagnant(ordi)).
