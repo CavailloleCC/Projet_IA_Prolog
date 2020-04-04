@@ -81,7 +81,7 @@ deplacerPersonnage(P,X,Y):- case(X,Y), retract(personnage(P,_,_,R,A)), assert(pe
 deplacerOrdi(P):-listPersonnages(LP),random_member(personnage(P,X,_,_,_),LP), delete([1,2,3,4],X,L),random_member(X1,L),random_member(Y,[1,2,3,4]),deplacer(P,X1,Y).
 
 
-%Personnages voisins : P a pour voisin...
+%Personnages voisins : P a pour voisin les personnages de la liste LP
 voisinHaut(P,LP):-personnage(P,X,Y,_,_),X>=2,X1 is X-1,findall(personnage(P1,X1,Y,R1,A1),personnage(P1,X1,Y,R1,A1),LP).
 voisinBas(P,LP):-personnage(P,X,Y,_,_),X=<4,X1 is X+1,findall(personnage(P1,X1,Y,R1,A1),personnage(P1,X1,Y,R1,A1),LP).
 voisinGauche(P,LP):-personnage(P,X,Y,_,_),Y>=2,Y1 is Y-1,findall(personnage(P1,X,Y1,R1,A1),personnage(P1,X,Y1,R1,A1),LP).
@@ -108,7 +108,7 @@ estSuspect(P1,P2):-personnage(P1,_,_,_,A),A\=o,peutTuer(P1,P2).
 listSuspect(LS,P):-setof(P1, estSuspect(P1,P), LS).
 
 %%Tuer un personnage
-%Stratégie joueur : tuer par un joueur
+%Stratégie joueur : P1 tue P2 s'il vérifie les contraintes définies dans peutTuer
 tuer(P1,P2):-personnage(P1,_,_,k,j),personnage(P2,_,_,c,j),peutTuer(P1,P2),modifierSuspects(P2),retract(personnage(P2,_,_,R,A)),scoreJoueur(S),S1 is S+1,retract(scoreJoueur(S)),assert(scoreJoueur(S1)),affichePlateau,verifierFin.
 tuer(P1,P2):-personnage(P1,_,_,k,j),personnage(P2,_,_,k,o),peutTuer(P1,P2),modifierSuspects(P2),retract(personnage(P2,_,_,R,A)),scoreJoueur(S),S1 is S+3,retract(scoreJoueur(S)),assert(scoreJoueur(S1)),retract(gagnant(null)),assert(gagnant(joueur)),affichePlateau,verifierFin.
 tuer(P1,P2):-personnage(P1,_,_,R,j),personnage(P2,_,_,_,_),R\=k,write('Veuillez utiliser votre killer pour tuer.'),actionJoueur.
@@ -123,7 +123,7 @@ tuerOrdi(P1,P2):-personnage(P1,_,_,k,o),personnage(P2,_,_,_,A),A\=o,peutTuer(P1,
 modifierSuspects(P):-listSuspect(LS,P),suspects([]),retract(suspects([])),assert(suspects(LS)).
 modifierSuspects(P):-listSuspect(LS,P),suspects(L),length(L,N),N>=1,intersection(L,LS,LF),retract(suspects(L)),assert(suspects(LF)).
 
-%Tueur adverse trouvé
+%Determine si le tueur adverse P a été trouvé
 tueurAdverse(P):-suspects(L),length(L,1),member(P,L).
 
 %Action du joueur virtuel : tue si il a trouvé le tueur adverse et que son killer peut tuer
@@ -134,13 +134,13 @@ actionOrdi:-deplacerOrdi(P),write('\n\nTour joueur virtuel : '),affichePlateau,v
 actionJoueur:-write('\n\nA votre tour de jouer\nPour deplacer un personnage p sur la case (ligne,colonne) : deplacerPersonnage(p,ligne,colonne).\nPour tuer un personnage p2 avec votre killer p1 : tuer(p1,p2).').
 
 
-%Vérifier si la partie est terminée
-verifierFin:-gagnant(joueur),scoreJoueur(SJ),scoreOrdi(SO),SJ>SO,write('\nLa partie est terminée.\nVotre score : '),write(scoreJoueur),write('/Score adversaire : '),write(scoreOrdi),write('\nVous avez gagné !\n\nPour quitter entrez "quitter."').
-verifierFin:-gagnant(joueur),scoreJoueur(SJ),scoreOrdi(SO),SJ<SO,write('\nLa partie est terminée.\nVotre score : '),write(scoreJoueur),write('/Score adversaire : '),write(scoreOrdi),write('\nL adversaire a gagné !\n\nPour quitter entrez "quitter.').
-verifierFin:-gagnant(ordi),scoreJoueur(SJ),scoreOrdi(SO),SJ>SO,write('\nLa partie est terminée.\nVotre score : '),write(scoreJoueur),write('/Score adversaire : '),write(scoreOrdi),write('\nVous avez gagné !\n\nPour quitter entrez "quitter."').
-verifierFin:-gagnant(ordi),scoreJoueur(SJ),scoreOrdi(SO),SJ<SO,write('\nLa partie est terminée.\nVotre score : '),write(scoreJoueur),write('/Score adversaire : '),write(scoreOrdi),write('\nL adversaire a gagné !\n\nPour quitter entrez "quitter.').
-verifierFin:-gagnant(joueur),scoreJoueur(SJ),scoreOrdi(SO),SJ=SO,write('\nLa partie est terminée.\nVotre score : '),write(scoreJoueur),write('/Score adversaire : '),write(scoreOrdi),write('Vous êtes à égalité !\n\nPour quitter entrez "quitter.').
-verifierFin:-gagnant(ordi),scoreJoueur(SJ),scoreOrdi(SO),SJ=SO,write('\nLa partie est terminée.\nVotre score : '),write(scoreJoueur),write('/Score adversaire : '),write(scoreOrdi),write('Vous êtes à égalité !\n\nPour quitter entrez "quitter.').
+%Vérifier si la partie est terminée (le killer d'un des joueurs a été tué)
+verifierFin:-gagnant(joueur),scoreJoueur(SJ),scoreOrdi(SO),SJ>SO,write('\nLa partie est terminee.\nVotre score : '),write(scoreJoueur),write('/Score adversaire : '),write(scoreOrdi),write('\nVous avez gagne !\n\nPour quitter entrez "quitter."').
+verifierFin:-gagnant(joueur),scoreJoueur(SJ),scoreOrdi(SO),SJ<SO,write('\nLa partie est terminee.\nVotre score : '),write(scoreJoueur),write('/Score adversaire : '),write(scoreOrdi),write('\nL adversaire a gagne !\n\nPour quitter entrez "quitter.').
+verifierFin:-gagnant(ordi),scoreJoueur(SJ),scoreOrdi(SO),SJ>SO,write('\nLa partie est terminee.\nVotre score : '),write(scoreJoueur),write('/Score adversaire : '),write(scoreOrdi),write('\nVous avez gagne !\n\nPour quitter entrez "quitter."').
+verifierFin:-gagnant(ordi),scoreJoueur(SJ),scoreOrdi(SO),SJ<SO,write('\nLa partie est terminee.\nVotre score : '),write(scoreJoueur),write('/Score adversaire : '),write(scoreOrdi),write('\nL adversaire a gagne !\n\nPour quitter entrez "quitter.').
+verifierFin:-gagnant(joueur),scoreJoueur(SJ),scoreOrdi(SO),SJ=SO,write('\nLa partie est terminee.\nVotre score : '),write(scoreJoueur),write('/Score adversaire : '),write(scoreOrdi),write('Vous etes a egalite !\n\nPour quitter entrez "quitter.').
+verifierFin:-gagnant(ordi),scoreJoueur(SJ),scoreOrdi(SO),SJ=SO,write('\nLa partie est terminee.\nVotre score : '),write(scoreJoueur),write('/Score adversaire : '),write(scoreOrdi),write('Vous etes a egalite !\n\nPour quitter entrez "quitter.').
 verifierFin:-tour(joueur),changerTour,actionOrdi.
 verifierFin:-tour(ordi),changerTour,actionJoueur.
 
@@ -181,7 +181,9 @@ affichePersonnages:-personnage(PK,_,_,k,j),findall(personnage(PC,_,_,c,j),person
 affichePersonnages:-personnage(PK,_,_,k,j),findall(personnage(PC,_,_,c,j),personnage(PC,_,_,c,j),LC),nth0(0,LC,personnage(P0,_,_,c,j)),caseSniper(s1,X1,Y1),caseSniper(s2,X2,Y2),caseSniper(s3,X3,Y3),write('\n\nLes cases Sniper sont : '),write(caseSniper(s1,X1,Y1)),write(', '),write(caseSniper(s2,X2,Y2)),write(', '),write(caseSniper(s3,X3,Y3)),write('\nVotre killer est : '),write(PK),write('\nVos cibles sont : '),write(P0).
 affichePersonnages:-personnage(PK,_,_,k,j),caseSniper(s1,X1,Y1),caseSniper(s2,X2,Y2),caseSniper(s3,X3,Y3),write('\n\nLes cases Sniper sont : '),write(caseSniper(s1,X1,Y1)),write(', '),write(caseSniper(s2,X2,Y2)),write(', '),write(caseSniper(s3,X3,Y3)),write('\nVotre killer est : '),write(PK).
 
-afficheDebut:-initialiserPlateau,afficheLigne1,afficheLigne2,afficheLigne3,afficheLigne4, affichePersonnages,actionJoueur.
+afficheRegles:-write('\nRegles du jeu :\nA chaque tour vous pouvez, soit deplacer un des personnages du plateau sur une case de votre choix, soit tuer un personnage du plateau grace a votre killer.\nPour tuer un personnage vous avez trois possibilites :\n- tuer par couteau si votre killer se trouve dans la meme case que sa vistime\n- tuer par pistolet si votre killer est seul dans une case adjacente a celle de sa victime\n- tuer par sniper si votre killer est seul sur une case dite "sniper" et que sa victime est presente sur une des cases en ligne droite par rapport a la sienne\n\n').
+
+commencer:-afficheRegles, initialiserPlateau,afficheLigne1,afficheLigne2,afficheLigne3,afficheLigne4, affichePersonnages,actionJoueur.
 
 affichePlateau:-afficheLigne1,afficheLigne2,afficheLigne3,afficheLigne4,affichePersonnages.
 
