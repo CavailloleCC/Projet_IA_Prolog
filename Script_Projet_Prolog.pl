@@ -109,8 +109,8 @@ listSuspect(LS,P):-setof(P1, estSuspect(P1,P), LS).
 
 %%Tuer un personnage
 %Stratégie joueur : P1 tue P2 s'il vérifie les contraintes définies dans peutTuer
-tuer(P1,P2):-personnage(P1,_,_,k,j),personnage(P2,_,_,c,j),peutTuer(P1,P2),modifierSuspects(P2),retract(personnage(P2,_,_,R,A)),scoreJoueur(S),S1 is S+1,retract(scoreJoueur(S)),assert(scoreJoueur(S1)),affichePlateau,verifierFin.
-tuer(P1,P2):-personnage(P1,_,_,k,j),personnage(P2,_,_,k,o),peutTuer(P1,P2),modifierSuspects(P2),retract(personnage(P2,_,_,R,A)),scoreJoueur(S),S1 is S+3,retract(scoreJoueur(S)),assert(scoreJoueur(S1)),retract(gagnant(null)),assert(gagnant(joueur)),affichePlateau,verifierFin.
+tuer(P1,P2):-personnage(P1,_,_,k,j),personnage(P2,_,_,c,j),peutTuer(P1,P2),modifierSuspects(P2),retract(personnage(P2,_,_,_,_)),scoreJoueur(S),S1 is S+1,retract(scoreJoueur(S)),assert(scoreJoueur(S1)),affichePlateau,verifierFin.
+tuer(P1,P2):-personnage(P1,_,_,k,j),personnage(P2,_,_,k,o),peutTuer(P1,P2),modifierSuspects(P2),retract(personnage(P2,_,_,_,_)),scoreJoueur(S),S1 is S+3,retract(scoreJoueur(S)),assert(scoreJoueur(S1)),retract(gagnant(null)),assert(gagnant(joueur)),affichePlateau,verifierFin.
 tuer(P1,P2):-personnage(P1,_,_,R,j),personnage(P2,_,_,_,_),R\=k,write('Veuillez utiliser votre killer pour tuer.'),actionJoueur.
 tuer(P1,P2):-personnage(P1,_,_,_,A),personnage(P2,_,_,_,_),A\=j,write('Veuillez utiliser votre killer pour tuer.'),actionJoueur.
 tuer(P1,P2):-personnage(P1,_,_,_,j),personnage(P2,_,_,_,_),peutTuer(P1,P2),modifierSuspects(P2),retract(personnage(P2,_,_,_,_)),affichePlateau,verifierFin.
@@ -127,8 +127,8 @@ modifierSuspects(P):-listSuspect(LS,P),suspects(L),length(L,N),N>=1,intersection
 tueurAdverse(P):-suspects(L),length(L,1),member(P,L).
 
 %Action du joueur virtuel : tue si il a trouvé le tueur adverse et que son killer peut tuer
-actionOrdi:-tuerOrdi(P1,P2),verifierFin.
-actionOrdi:-deplacerOrdi(P),write('\n\nTour joueur virtuel : '),affichePlateau,verifierFin.
+actionOrdi:-tuerOrdi(_,_),verifierFin.
+actionOrdi:-deplacerOrdi(_),write('\n\nTour joueur virtuel : '),affichePlateau,verifierFin.
 
 %Action du joueur : affichage des consignes pour action du joueur
 actionJoueur:-write('\n\nA votre tour de jouer\nPour deplacer un personnage p sur la case (ligne,colonne) : deplacerPersonnage(p,ligne,colonne).\nPour tuer un personnage p2 avec votre killer p1 : tuer(p1,p2).').
